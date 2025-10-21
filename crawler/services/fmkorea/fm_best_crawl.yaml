@@ -1,0 +1,9 @@
+base_url: "https://www.fmkorea.com/index.php?mid=best2&page="
+wait_time: 2
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "9724"
+  dbname: "hu"
+  table_name: "total_articles"

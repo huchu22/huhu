@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/article_service.dart';
 import '../models/article.dart';
 import '../widgets/article_items.dart';
+import '../widgets/site_button.dart';
 
 class ArticleFeedPage extends StatefulWidget {
   const ArticleFeedPage({super.key});
@@ -15,6 +16,7 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
   List<Article> _articles = [];
   bool _isLoading = true;
   String? _errorMessage;
+  String _selectedSite = 'all';
 
   @override
   void initState() {
@@ -22,9 +24,16 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
     _loadArticles();
   }
 
-  Future<void> _loadArticles() async {
+  Future<void> _loadArticles({String site = 'all'}) async {
     try {
-      final fetchedArticles = await _articleService.getArticles();
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final fetchedArticles = site == "all"
+          ? await _articleService.getArticles()
+          : await _articleService.getArticlesBySite(site);
       setState(() {
         _articles = fetchedArticles;
         _isLoading = false;
@@ -38,16 +47,39 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
     }
   }
 
+  void _onSiteSelected(String site) {
+    setState(() => _selectedSite = site);
+    _loadArticles(site: site);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("huhu"),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadArticles),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => _loadArticles(),
+          ),
         ],
       ),
-      body: _buildBody(),
+      body: Column(
+        children: [
+          // ✅ 필터 버튼 추가
+          SiteFilterButtons(
+            selectedSite: _selectedSite,
+            onSelected: _onSiteSelected,
+          ),
+          const Divider(height: 1),
+          Expanded(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: _buildBody(),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -96,16 +128,22 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
       );
     }
 
-    return Center(
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: ListView.builder(
-          itemCount: _articles.length,
-          itemBuilder: (context, index) {
-            return ArticleItem(article: _articles[index]);
-          },
-        ),
-      ),
+    // return Center(
+    //   child: Container(
+    //     constraints: const BoxConstraints(maxWidth: 400),
+    //     child: ListView.builder(
+    //       itemCount: _articles.length,
+    //       itemBuilder: (context, index) {
+    //         return ArticleItem(article: _articles[index]);
+    //       },
+    //     ),
+    //   ),
+    // );
+    return ListView.builder(
+      itemCount: _articles.length,
+      itemBuilder: (context, index) {
+        return ArticleItem(article: _articles[index]);
+      },
     );
   }
 }

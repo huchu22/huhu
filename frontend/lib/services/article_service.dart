@@ -23,4 +23,14 @@ class ArticleService {
       return [];
     }
   }
+
+  Future<List<Article>> getArticlesBySite(String site) async {
+    try {
+      final response = await _dio.get("/articles/sitename/$site");
+      final List<dynamic> data = response.data;
+      return data.map((json) => Article.fromJson(json)).toList();
+    } catch (e) {
+      return [];
+    }
+  }
 }

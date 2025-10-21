@@ -19,7 +19,7 @@ public class ArticleService {
         return articleRepository.findBySiteName(siteName)
                 .stream()
                 // Dto와 순서 맞춰야 한다...
-                .map(a -> new ArticleDto(a.getTitle(),a.getCreationDate(), a.getArticleUrl()))
+                .map(a -> new ArticleDto(a.getTitle(),a.getCreationDate(), a.getArticleUrl(), a.getSiteName()))
                 .collect(Collectors.toList());
     }
 
@@ -27,7 +27,7 @@ public class ArticleService {
     public List<ArticleDto> getAllArticles(){
         return articleRepository.findAllByOrderByCollectedDateDesc()
                 .stream()
-                .map(a -> new ArticleDto(a.getTitle(),a.getCreationDate(), a.getArticleUrl()))
+                .map(a -> new ArticleDto(a.getTitle(),a.getCreationDate(), a.getArticleUrl(), a.getSiteName()))
                 .collect(Collectors.toList());
     }
 }

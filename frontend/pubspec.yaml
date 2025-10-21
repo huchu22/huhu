@@ -1,0 +1,28 @@
+name: frontend
+description: "A new Flutter project."
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  dio: ^5.1.1
+  webview_flutter: ^4.10.5 # ← webview_flutter와 다른 플러그지 버전 맞춤
+  webview_flutter_android: ^4.10.5
+  webview_flutter_wkwebview: ^3.23.1
+  url_launcher: ^6.2.12
+  cupertino_icons: ^1.0.8
+  salomon_bottom_bar: ^3.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true

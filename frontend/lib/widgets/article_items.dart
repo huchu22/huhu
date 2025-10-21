@@ -59,6 +59,13 @@ class ArticleItem extends StatelessWidget {
                     _formatDate(article.createDate),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
+                  const SizedBox(height: 8),
+                  Text(
+                    article.siteName,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ],
               ),
             ),

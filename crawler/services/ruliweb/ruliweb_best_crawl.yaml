@@ -1,0 +1,9 @@
+base_url: "https://m.ruliweb.com/best/all/now?page="
+wait_time: 2
+database:
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "9724"
+  dbname: "hu"
+  table_name: "total_articles"

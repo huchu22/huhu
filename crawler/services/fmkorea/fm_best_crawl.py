@@ -64,7 +64,7 @@ class FmkoreaBest(Pyselenium):
 
             # 고유 번호 추출
             match = re.search(r"/(\d+)$", url)
-            article_id = match.group(1)
+            article_id = self.base_url + "_" + match.group(1)
 
             if article_id in repeat_article:
                 continue

@@ -68,7 +68,7 @@ class DcinsideBest(Pyselenium):
             time_e = e.find('td', class_="gall_date")
             create_ts = time_e['title']
             # 고유 번호 추출
-            article_id = url.split('no=')[1].split('&')[0]
+            article_id = self.site_name + "_" + url.split('no=')[1].split('&')[0]
 
             if article_id in repeat_article:
                 continue

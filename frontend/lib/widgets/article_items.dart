@@ -61,13 +61,19 @@ class ArticleItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    article.siteName,
+                    _siteMapping(article.siteName),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ],
               ),
+            ),
+
+            const Icon(
+              Icons.star_border,
+              color: Color.fromARGB(255, 158, 158, 158),
+              size: 28,
             ),
           ],
         ),
@@ -78,5 +84,16 @@ class ArticleItem extends StatelessWidget {
   String _formatDate(DateTime date) {
     return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} "
         "${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+  }
+
+  String _siteMapping(String code) {
+    const siteMap = {
+      "fmkorea": "에펨코리아",
+      "dcinside": "디시인사이드",
+      "naver": "네이버",
+      "ruliweb": "루리웹",
+      "theqoo": "더쿠",
+    };
+    return siteMap[code] ?? code;
   }
 }

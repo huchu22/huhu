@@ -14,20 +14,30 @@ class ArticleService {
     );
   }
 
-  Future<List<Article>> getArticles() async {
+  // 전체 게시글 불러오기
+  Future<List<Article>> getArticles({int page = 1}) async {
     try {
-      final response = await _dio.get("/articles");
-      final List<dynamic> data = response.data;
+      final response = await _dio.get(
+        "/articles",
+        queryParameters: {"page": page},
+      );
+      final List<dynamic> data =
+          response.data['items']; // fastAPI pagination 구조 기준
       return data.map((json) => Article.fromJson(json)).toList();
     } catch (e) {
       return [];
     }
   }
 
-  Future<List<Article>> getArticlesBySite(String site) async {
+  // 사이트별 게시글 불러오기
+  Future<List<Article>> getArticlesBySite(String site, {int page = 1}) async {
     try {
-      final response = await _dio.get("/articles/sitename/$site");
-      final List<dynamic> data = response.data;
+      final response = await _dio.get(
+        "/articles/sitename/$site",
+        queryParameters: {"page": page},
+      );
+      final List<dynamic> data =
+          response.data['items']; // fastAPI pagination 구조 기준
       return data.map((json) => Article.fromJson(json)).toList();
     } catch (e) {
       return [];

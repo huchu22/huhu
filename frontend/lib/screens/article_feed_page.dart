@@ -13,36 +13,97 @@ class ArticleFeedPage extends StatefulWidget {
 
 class _ArticleFeedPageState extends State<ArticleFeedPage> {
   final ArticleService _articleService = ArticleService();
+  final ScrollController _scrollController = ScrollController();
+
   List<Article> _articles = [];
-  bool _isLoading = true;
-  String? _errorMessage;
-  String _selectedSite = 'all';
+  bool _isLoading = true; // 초기 로딩 상태
+  int _currentPage = 1; // 현재 페이지
+  bool _hasMore = true; // 더 불러올 게시물이 있는지 여부
+  bool _isLoadingMore = false; // 다음 페이지 로딩 상태
+  String? _errorMessage; // 오류 메시지
+  String _selectedSite = 'all'; // 선택된 사이트 필터(첫 로딩 = 전체)
 
   @override
   void initState() {
     super.initState();
     _loadArticles();
+
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+              _scrollController.position.maxScrollExtent - 200 &&
+          _hasMore &&
+          !_isLoadingMore &&
+          !_isLoading) {
+        _loadMoreArticles();
+      }
+    });
   }
 
-  Future<void> _loadArticles({String site = 'all'}) async {
-    try {
-      setState(() {
-        _isLoading = true;
-        _errorMessage = null;
-      });
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
+  // 다음 페이지 로딩
+  Future<void> _loadMoreArticles() async {
+    if (!_hasMore || _isLoadingMore) return;
+
+    setState(() => _isLoadingMore = true);
+
+    final nextPage = _currentPage + 1;
+
+    try {
+      final fetchedArticles = _selectedSite == "all"
+          ? await _articleService.getArticles(page: nextPage)
+          : await _articleService.getArticlesBySite(
+              _selectedSite,
+              page: nextPage,
+            );
+
+      setState(() {
+        if (fetchedArticles.isEmpty) {
+          _hasMore = false;
+        } else {
+          _currentPage = nextPage;
+          _articles.addAll(fetchedArticles);
+        }
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingMore = false;
+        _errorMessage = e.toString();
+        _hasMore = false; // 에러 시 더 이상 시도 안 함
+      });
+    }
+  }
+
+  // ✅ 초기 로드 및 필터링 함수
+  Future<void> _loadArticles({String site = 'all'}) async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+      _currentPage = 1;
+      _hasMore = true;
+      _articles.clear();
+    });
+
+    try {
       final fetchedArticles = site == "all"
-          ? await _articleService.getArticles()
-          : await _articleService.getArticlesBySite(site);
+          ? await _articleService.getArticles(page: 1)
+          : await _articleService.getArticlesBySite(site, page: 1);
+
       setState(() {
         _articles = fetchedArticles;
         _isLoading = false;
-        _errorMessage = null;
+        _hasMore = fetchedArticles.isNotEmpty;
       });
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();
+        _hasMore = false;
       });
     }
   }
@@ -60,7 +121,7 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => _loadArticles(),
+            onPressed: () => _loadArticles(), // site: _selectedSite
           ),
         ],
       ),
@@ -128,21 +189,18 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
       );
     }
 
-    // return Center(
-    //   child: Container(
-    //     constraints: const BoxConstraints(maxWidth: 400),
-    //     child: ListView.builder(
-    //       itemCount: _articles.length,
-    //       itemBuilder: (context, index) {
-    //         return ArticleItem(article: _articles[index]);
-    //       },
-    //     ),
-    //   ),
-    // );
     return ListView.builder(
-      itemCount: _articles.length,
+      controller: _scrollController,
+      itemCount: _articles.length + (_isLoadingMore ? 1 : 0),
       itemBuilder: (context, index) {
-        return ArticleItem(article: _articles[index]);
+        if (index < _articles.length) {
+          return ArticleItem(article: _articles[index]);
+        } else {
+          return const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
       },
     );
   }

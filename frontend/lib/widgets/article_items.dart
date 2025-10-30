@@ -4,6 +4,7 @@ import '../screens/article_webview_page.dart';
 import '../services/bookmark_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
+import '../services/readstatus_service.dart';
 
 class ArticleItem extends StatefulWidget {
   final Article article;
@@ -16,23 +17,41 @@ class ArticleItem extends StatefulWidget {
 
 class _ArticleItemState extends State<ArticleItem> {
   bool isBookmarked = false;
+  bool isRead = false;
   final BookmarkService _bookmarkService = BookmarkService();
+  final ReadstatusService _readService = ReadstatusService();
 
   @override
   void initState() {
     super.initState();
     _checkBookmarkStatus();
+    _checkReadStatus();
   }
 
-  // 서버에서 현재 즐겨찾기 여부 확인
+  void _checkReadStatus() async {
+    final readArticles = await _readService.getReadArticles();
+    if (mounted) {
+      setState(() {
+        isRead = readArticles.any(
+          (a) =>
+              a.articleID == widget.article.articleID &&
+              a.siteName == widget.article.siteName,
+        );
+      });
+    }
+  }
+
   void _checkBookmarkStatus() async {
     final bookmarks = await _bookmarkService.getBookmarkedArticles();
-    bool status = bookmarks.any(
-      (a) =>
-          a.articleID == widget.article.articleID &&
-          a.siteName == widget.article.siteName,
-    );
-    setState(() => isBookmarked = status);
+    if (mounted) {
+      setState(() {
+        isBookmarked = bookmarks.any(
+          (a) =>
+              a.articleID == widget.article.articleID &&
+              a.siteName == widget.article.siteName,
+        );
+      });
+    }
   }
 
   void _toggleBookmark() async {
@@ -47,7 +66,9 @@ class _ArticleItemState extends State<ArticleItem> {
         widget.article.siteName,
       );
     }
-    setState(() => isBookmarked = !isBookmarked);
+    if (mounted) {
+      setState(() => isBookmarked = !isBookmarked);
+    }
   }
 
   void _openUrl(BuildContext context) async {
@@ -65,6 +86,15 @@ class _ArticleItemState extends State<ArticleItem> {
         ),
       );
     }
+
+    // 클릭 시 읽음 등록
+    await _readService.addReadArticle(
+      widget.article.articleID,
+      widget.article.siteName,
+    );
+    if (mounted) {
+      setState(() => isRead = true);
+    }
   }
 
   @override
@@ -75,6 +105,7 @@ class _ArticleItemState extends State<ArticleItem> {
         height: 136,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5.0),
         decoration: BoxDecoration(
+          color: isRead ? Colors.grey.withOpacity(0.2) : Colors.white,
           border: Border.all(color: const Color(0xFFE0E0E0)),
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -88,7 +119,10 @@ class _ArticleItemState extends State<ArticleItem> {
                 children: [
                   Text(
                     widget.article.title,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: isRead ? Colors.grey : Colors.black,
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),

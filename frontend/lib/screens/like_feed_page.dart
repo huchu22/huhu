@@ -16,25 +16,13 @@ class _LikeFeedPageState extends State<LikeFeedPage> {
 
   List<Article> _articles = [];
   bool _isLoading = true;
-  // int _currentPage = 1;
-  // bool _hasMore = true;
-  // bool _isLoadingMore = false;
+
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
     _loadBookmarkedArticles();
-
-    // _scrollController.addListener(() {
-    //   if (_scrollController.position.pixels >=
-    //           _scrollController.position.maxScrollExtent - 200 &&
-    //       !_isLoading &&
-    //       _hasMore &&
-    //       !_isLoadingMore) {
-    //     _loadMoreBookmarkedArticles();
-    //   }
-    // });
   }
 
   @override
@@ -48,8 +36,6 @@ class _LikeFeedPageState extends State<LikeFeedPage> {
       setState(() {
         _isLoading = true;
         _errorMessage = null;
-        // _currentPage = 1;
-        // _hasMore = true;
         _articles.clear();
       });
 
@@ -65,29 +51,6 @@ class _LikeFeedPageState extends State<LikeFeedPage> {
       });
     }
   }
-
-  // Future<void> _loadMoreBookmarkedArticles() async {
-  //   if (!_hasMore) return;
-
-  //   setState(() => _isLoadingMore = true);
-
-  //   try {
-  //     final fetchedArticles = await _bookmarkService.getBookmarkedArticles();
-  //     setState(() {
-  //       if (fetchedArticles.isEmpty) {
-  //         _hasMore = false;
-  //       } else {
-  //         _currentPage++;
-  //         _articles.addAll(fetchedArticles);
-  //       }
-  //       _isLoadingMore = false;
-  //     });
-  //   } catch (e) {
-  //     setState(() {
-  //       _isLoadingMore = false;
-  //     });
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -161,8 +124,6 @@ class _LikeFeedPageState extends State<LikeFeedPage> {
     }
 
     return ListView.builder(
-      // controller: _scrollController,
-      // itemCount: _articles.length + (_isLoadingMore ? 1 : 0),
       padding: const EdgeInsets.only(top: 8),
       itemCount: _articles.length,
       itemBuilder: (context, index) {

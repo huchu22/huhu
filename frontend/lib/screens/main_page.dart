@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/like_feed_page.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'article_feed_page.dart';
 
@@ -15,9 +16,8 @@ class _MainScreenState extends State<MainScreen> {
   // 각 탭에 보여줄 위젯
   final List<Widget> _pages = [
     const ArticleFeedPage(), // Home
-    const Center(child: Text("Likes")), // Likes 탭 (임시)
+    const LikeFeedPage(), // Likes
     const Center(child: Text("Search")), // Search 탭 (임시)
-    const Center(child: Text("Profile")), // Profile 탭 (임시)
   ];
 
   @override

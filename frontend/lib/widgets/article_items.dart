@@ -1,28 +1,67 @@
 import 'package:flutter/material.dart';
 import '../models/article.dart';
 import '../screens/article_webview_page.dart';
+import '../services/bookmark_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:url_launcher/url_launcher.dart';
 
-class ArticleItem extends StatelessWidget {
+class ArticleItem extends StatefulWidget {
   final Article article;
 
   const ArticleItem({super.key, required this.article});
 
+  @override
+  State<ArticleItem> createState() => _ArticleItemState();
+}
+
+class _ArticleItemState extends State<ArticleItem> {
+  bool isBookmarked = false;
+  final BookmarkService _bookmarkService = BookmarkService();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkBookmarkStatus();
+  }
+
+  // 서버에서 현재 즐겨찾기 여부 확인
+  void _checkBookmarkStatus() async {
+    final bookmarks = await _bookmarkService.getBookmarkedArticles();
+    bool status = bookmarks.any(
+      (a) =>
+          a.articleID == widget.article.articleID &&
+          a.siteName == widget.article.siteName,
+    );
+    setState(() => isBookmarked = status);
+  }
+
+  void _toggleBookmark() async {
+    if (isBookmarked) {
+      await _bookmarkService.removeBookmark(
+        widget.article.articleID,
+        widget.article.siteName,
+      );
+    } else {
+      await _bookmarkService.addBookmark(
+        widget.article.articleID,
+        widget.article.siteName,
+      );
+    }
+    setState(() => isBookmarked = !isBookmarked);
+  }
+
   void _openUrl(BuildContext context) async {
     if (kIsWeb) {
-      // Web 이면 새 탭으로 열기
-      final uri = Uri.parse(article.siteUrl);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      }
+      final uri = Uri.parse(widget.article.siteUrl);
+      if (await canLaunchUrl(uri)) await launchUrl(uri);
     } else {
-      // 모바일이면 WebViewPage로 이동
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) =>
-              ArticleWebviewPage(url: article.siteUrl, title: article.title),
+          builder: (_) => ArticleWebviewPage(
+            url: widget.article.siteUrl,
+            title: widget.article.title,
+          ),
         ),
       );
     }
@@ -31,7 +70,6 @@ class ArticleItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      // ← 탭 가능하게 InkWell로 감쌈
       onTap: () => _openUrl(context),
       child: Container(
         height: 136,
@@ -49,19 +87,19 @@ class ArticleItem extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    article.title,
+                    widget.article.title,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _formatDate(article.createDate),
+                    _formatDate(widget.article.createDate),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _siteMapping(article.siteName),
+                    _siteMapping(widget.article.siteName),
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
@@ -69,11 +107,15 @@ class ArticleItem extends StatelessWidget {
                 ],
               ),
             ),
-
-            const Icon(
-              Icons.star_border,
-              color: Color.fromARGB(255, 158, 158, 158),
-              size: 28,
+            IconButton(
+              icon: Icon(
+                isBookmarked ? Icons.star : Icons.star_border,
+                color: isBookmarked
+                    ? Colors.amber
+                    : const Color.fromARGB(255, 158, 158, 158),
+                size: 28,
+              ),
+              onPressed: _toggleBookmark,
             ),
           ],
         ),

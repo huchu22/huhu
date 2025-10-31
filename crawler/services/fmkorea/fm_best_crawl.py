@@ -1,6 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from crawler.core.pyselenium import Pyselenium
+from core.pyselenium import Pyselenium
 import time
 import yaml
 import os

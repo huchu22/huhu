@@ -1,6 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from crawler.core.pyselenium import Pyselenium
+from core.pyselenium import Pyselenium
 import time
 import yaml
 import os
@@ -12,7 +12,6 @@ from selenium.webdriver.common.by import By
 
 class TheqooHot(Pyselenium):
     def __init__(self, config_f="theqoo_hot_crawl.yaml"):
-        super().__init__()
         self.driver = webdriver.Chrome()
 
         # 현재 실행 파일 폴더 기준으로 config 파일 지정

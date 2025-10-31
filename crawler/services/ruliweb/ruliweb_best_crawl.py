@@ -1,6 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-from crawler.core.pyselenium import Pyselenium
+from core.pyselenium import Pyselenium
 import time
 import yaml
 import os

@@ -120,7 +120,7 @@ class DcinsideBest(Pyselenium):
     def start(self):
         try:
             self.logger.info(f"🚀 {self.site_name} 인기글 크롤링 시작")
-            for i in range(1, 5):
+            for i in range(1, 11):
                 url = f"{self.base_url}{i}"
                 self.driver.get(url)
                 self.logger.info(f"수집 URL: {url}")

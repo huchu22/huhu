@@ -135,7 +135,7 @@ class TheqooHot(Pyselenium):
     ###############################################################################################
     def start(self):
         try:
-            for i in range(1, 3):
+            for i in range(1, 11):
                 url = f"{self.base_url}{i}"
                 self.driver.get(url)
                 self.logger.info(f"수집 URL: {url}")

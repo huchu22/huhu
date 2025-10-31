@@ -113,7 +113,6 @@ class RuliwebBest(Pyselenium):
                 self.logger.info(f"{len(articles_list)}개 수집 완료 및 DB 저장 완료")
         except:
             self.conn.rollback()
-            self.logger.error(f"DB 저장 실패:{e}")
             return
 
         return
@@ -129,7 +128,7 @@ class RuliwebBest(Pyselenium):
     def start(self):
         try:
             self.logger.info(f"🚀 {self.site_name} 인기글 크롤링 시작")
-            for i in range(1, 5):
+            for i in range(1, 10):
                 url = f"{self.base_url}{i}"
                 self.driver.get(url)
                 self.logger.info(f"수집 URL: {url}")

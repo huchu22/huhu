@@ -1,16 +1,15 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
 from core.pyselenium import Pyselenium
-import time
 import yaml
 import os
 from datetime import datetime, timedelta
-
-import logging
 import psycopg2
+from utils.logger import get_logger
 
 class DcinsideBest(Pyselenium):
     def __init__(self, config_f="dc_best_crawl.yaml"):
+        super().__init__()
         self.driver = webdriver.Chrome()
 
         # 현재 실행 파일 폴더 기준으로 config 파일 지정
@@ -38,10 +37,15 @@ class DcinsideBest(Pyselenium):
         self.is_done = False
 
         self.site_name = 'dcinside'
+        self.repeat_article = 0
+
+        # 로거 설정
+        self.logger = get_logger(self.site_name)
 
     ###############################################################################################
     def crawl_list(self):
         articles_list = []
+        self.repeat_article = 0
         # DB에 있는 게시물들의 article_id 불러오기
         repeat_article = self.load_db_articles()
 
@@ -50,6 +54,7 @@ class DcinsideBest(Pyselenium):
 
         article_list = soup.find('tbody', class_= "listwrap2")
         contents_e =  article_list.find_all('tr', class_= "ub-content us-post thum")
+        self.logger.info(f"게시글 수: {len(contents_e)}개")
 
         # 게시물 내용 추출
         for e in contents_e:
@@ -70,8 +75,8 @@ class DcinsideBest(Pyselenium):
             article_id = self.site_name + "_" + url.split('no=')[1].split('&')[0]
 
             if article_id in repeat_article:
+                self.repeat_article += 1
                 continue
-
             # 리스트 추가
             articles_list.append({
                 'article_id': article_id,
@@ -79,7 +84,7 @@ class DcinsideBest(Pyselenium):
                 'title': title,
                 'create_ts': create_ts
             })
-
+        self.logger.info(f"중복 게시글: {self.repeat_article}개")
         # PostgreSQL DB에 데이터 삽입
         try:
             with self.conn.cursor() as cursor:
@@ -97,7 +102,9 @@ class DcinsideBest(Pyselenium):
                 ])
 
                 self.conn.commit()
-        except:
+                self.logger.info(f"{len(articles_list)}개 수집 완료 및 DB 저장 완료")
+        except Exception as e:
+            self.logger.error(f"DB 저장 실패:{e}")
             return
 
         return
@@ -112,9 +119,11 @@ class DcinsideBest(Pyselenium):
     ###############################################################################################
     def start(self):
         try:
-            for i in range(1, 2):
+            self.logger.info(f"🚀 {self.site_name} 인기글 크롤링 시작")
+            for i in range(1, 5):
                 url = f"{self.base_url}{i}"
                 self.driver.get(url)
+                self.logger.info(f"수집 URL: {url}")
                 self.crawl_list()
 
         except Exception as e:

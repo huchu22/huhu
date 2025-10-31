@@ -152,7 +152,7 @@ class FmkoreaBest(Pyselenium):
     ###############################################################################################
     def start(self):
         try:
-            for i in range(1, 10):
+            for i in range(1, 11):
                 url = f"{self.base_url}{i}"
                 # self.is_done = True
                 self.driver.get(url)

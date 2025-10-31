@@ -127,7 +127,7 @@ class DcinsideBest(Pyselenium):
                 self.crawl_list()
 
         except Exception as e:
-            print("❌ Error:", e)
+            self.logger.error(f"Error: {e}")
         finally:
             # 디버깅 중 강제 종료나 예외가 나도 Chrome 종료
             if self.driver:

@@ -9,6 +9,7 @@ import re
 import logging
 import psycopg2
 from selenium.webdriver.common.by import By
+from utils.logger import get_logger
 
 class TheqooHot(Pyselenium):
     def __init__(self, config_f="theqoo_hot_crawl.yaml"):
@@ -39,6 +40,10 @@ class TheqooHot(Pyselenium):
         self.is_done = False
 
         self.site_name = 'theqoo'
+        self.repeat_article = 0
+
+        # 로거 설정
+        self.logger = get_logger(self.site_name)
 
     ###############################################################################################
     def crawl_list(self):
@@ -54,7 +59,7 @@ class TheqooHot(Pyselenium):
             tr for tr in article_list.find_all('tr')
             if not tr.get('class') or all(c not in ['notice', 'nofn', 'notice_expand'] for c in tr.get('class', []))
         ]
-
+        self.logger.info(f"게시글 수: {len(contents_e)}개")
         # 게시물 내용 추출
         for e in contents_e:
             # 제목 추출
@@ -84,6 +89,7 @@ class TheqooHot(Pyselenium):
                 article_id = self.site_name + "_" +match.group(1)
 
             if article_id in repeat_article:
+                self.repeat_article += 1
                 continue
 
             # 리스트 추가
@@ -93,6 +99,8 @@ class TheqooHot(Pyselenium):
                 'title': title,
                 'create_ts': create_ts
             })
+
+        self.logger.info(f"중복 게시글: {self.repeat_article}개")
 
         # PostgreSQL DB에 데이터 삽입
         try:
@@ -112,6 +120,7 @@ class TheqooHot(Pyselenium):
 
                 self.conn.commit()
         except:
+            self.logger.error(f"DB 저장 실패:{e}")
             return
 
         return
@@ -129,10 +138,11 @@ class TheqooHot(Pyselenium):
             for i in range(1, 3):
                 url = f"{self.base_url}{i}"
                 self.driver.get(url)
+                self.logger.info(f"수집 URL: {url}")
                 self.crawl_list()
 
         except Exception as e:
-            print("❌ Error:", e)
+            self.logger.error(f"Error: {e}")
         finally:
             # 디버깅 중 강제 종료나 예외가 나도 Chrome 종료
             if self.driver:

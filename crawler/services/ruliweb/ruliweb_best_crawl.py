@@ -6,8 +6,8 @@ import yaml
 import os
 from datetime import datetime, timedelta
 import re
-import logging
 import psycopg2
+from utils.logger import get_logger
 
 class RuliwebBest(Pyselenium):
     def __init__(self, config_f="ruliweb_best_crawl.yaml"):
@@ -39,10 +39,15 @@ class RuliwebBest(Pyselenium):
         self.is_done = False
 
         self.site_name = 'ruliweb'
+        self.repeat_article = 0
+
+        # 로거 설정
+        self.logger = get_logger(self.site_name)
 
     ###############################################################################################
     def crawl_list(self):
         articles_list = []
+        self.repeat_article = 0
         # DB에 있는 게시물들의 article_id 불러오기
         repeat_article = self.load_db_articles()
 
@@ -51,6 +56,7 @@ class RuliwebBest(Pyselenium):
 
         article_list = soup.find('div', class_= "board_main theme_default")
         contents_e =  article_list.find_all('tr', class_= "table_body blocktarget")
+        self.logger.info(f"게시글 수: {len(contents_e)}개")
 
         # 게시물 내용 추출
         for e in contents_e:
@@ -74,6 +80,7 @@ class RuliwebBest(Pyselenium):
                 article_id = "ruliweb" + "_" + match.group(1)
 
             if article_id in repeat_article:
+                self.repeat_article += 1
                 continue
 
             # 리스트 추가
@@ -83,6 +90,8 @@ class RuliwebBest(Pyselenium):
                 'title': title,
                 'create_ts': create_ts
             })
+
+        self.logger.info(f"중복 게시글: {self.repeat_article}개")
 
         # PostgreSQL DB에 데이터 삽입
         try:
@@ -101,8 +110,10 @@ class RuliwebBest(Pyselenium):
                 ])
 
                 self.conn.commit()
+                self.logger.info(f"{len(articles_list)}개 수집 완료 및 DB 저장 완료")
         except:
             self.conn.rollback()
+            self.logger.error(f"DB 저장 실패:{e}")
             return
 
         return
@@ -117,13 +128,15 @@ class RuliwebBest(Pyselenium):
     ###############################################################################################
     def start(self):
         try:
+            self.logger.info(f"🚀 {self.site_name} 인기글 크롤링 시작")
             for i in range(1, 5):
                 url = f"{self.base_url}{i}"
                 self.driver.get(url)
+                self.logger.info(f"수집 URL: {url}")
                 self.crawl_list()
 
         except Exception as e:
-            print("❌ Error:", e)
+            self.logger.error(f"Error: {e}")
         finally:
             # 디버깅 중 강제 종료나 예외가 나도 Chrome 종료
             if self.driver:

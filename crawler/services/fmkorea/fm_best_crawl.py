@@ -7,6 +7,7 @@ import os
 from datetime import datetime, timedelta
 import re
 import psycopg2
+from utils.logger import get_logger
 
 class FmkoreaBest(Pyselenium):
     def __init__(self, config_f="fm_best_crawl.yaml"):
@@ -38,10 +39,15 @@ class FmkoreaBest(Pyselenium):
         self.is_done = False
 
         self.site_name = 'fmkorea'
+        self.repeat_article = 0
+
+        # 로거 설정
+        self.logger = get_logger(self.site_name)
 
     ###############################################################################################
     def crawl_list(self):
         articles_list = []
+        self.repeat_article = 0
         # DB에 있는 게시물들의 article_id 불러오기
         repeat_article = self.load_db_articles()
 
@@ -67,6 +73,7 @@ class FmkoreaBest(Pyselenium):
             article_id = self.base_url + "_" + match.group(1)
 
             if article_id in repeat_article:
+                self.repeat_article += 1
                 continue
 
             # 리스트 추가
@@ -76,6 +83,7 @@ class FmkoreaBest(Pyselenium):
                 'title': title,
                 'create_ts': create_ts
             })
+        self.logger.info(f"중복 게시글: {self.repeat_article}개")
 
         # PostgreSQL DB에 데이터 삽입
         try:
@@ -94,7 +102,9 @@ class FmkoreaBest(Pyselenium):
                 ])
 
                 self.conn.commit()
+                self.logger.info(f"{len(articles_list)}개 수집 완료 및 DB 저장 완료")
         except:
+            self.logger.error(f"DB 저장 실패:{e}")
             return
 
         return
@@ -147,10 +157,11 @@ class FmkoreaBest(Pyselenium):
                 # self.is_done = True
                 self.driver.get(url)
                 time.sleep(self.wait_time)
+                self.logger.info(f"수집 URL: {url}")
                 self.crawl_list()
 
         except Exception as e:
-            print("❌ Error:", e)
+            self.logger.error(f"Error: {e}")
         finally:
             # 디버깅 중 강제 종료나 예외가 나도 Chrome 종료
             if self.driver:

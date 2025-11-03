@@ -105,7 +105,7 @@ class _ArticleItemState extends State<ArticleItem> {
         height: 136,
         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 5.0),
         decoration: BoxDecoration(
-          color: isRead ? Colors.grey.withOpacity(0.2) : Colors.white,
+          color: isRead ? Colors.grey.withValues(alpha: 0) : Colors.white,
           border: Border.all(color: const Color(0xFFE0E0E0)),
           borderRadius: BorderRadius.circular(8.0),
         ),

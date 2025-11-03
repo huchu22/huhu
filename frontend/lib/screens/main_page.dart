@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/screens/like_feed_page.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 import 'article_feed_page.dart';
+import 'search_page.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -17,7 +18,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const ArticleFeedPage(), // Home
     const LikeFeedPage(), // Likes
-    const Center(child: Text("Search")), // Search 탭 (임시)
+    const SearchPage(), // Search 탭
   ];
 
   @override

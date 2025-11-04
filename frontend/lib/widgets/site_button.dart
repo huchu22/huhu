@@ -15,7 +15,6 @@ class SiteFilterButtons extends StatelessWidget {
     final sites = [
       {"code": "fmkorea", "name": "에펨코리아"},
       {"code": "dcinside", "name": "디시인사이드"},
-      {"code": "naver", "name": "네이버"},
       {"code": "ruliweb", "name": "루리웹"},
       {"code": "theqoo", "name": "더쿠"},
     ];

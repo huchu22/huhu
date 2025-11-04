@@ -3,6 +3,7 @@ import '../services/article_service.dart';
 import '../models/article.dart';
 import '../widgets/article_items.dart';
 import '../widgets/site_button.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class ArticleFeedPage extends StatefulWidget {
   const ArticleFeedPage({super.key});
@@ -117,7 +118,17 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("huhu"),
+        title: Center(
+          child: Text(
+            "Community Hot Issue",
+            style: GoogleFonts.amiko(
+              textStyle: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

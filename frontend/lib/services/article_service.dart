@@ -1,13 +1,22 @@
+import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import '../models/article.dart';
 
 class ArticleService {
   late final Dio _dio;
 
   ArticleService() {
+    final baseUrl = kIsWeb
+        ? "http://localhost:8080/api" // 웹 전용 백엔드 URL
+        : Platform.isAndroid
+        ? 'http://10.0.2.2:8080/api' // Android 에뮬레이터에서 실행할 때
+        : 'http://localhost:8080/api'; // iOS 시뮬레이터에서 실행할 때
+
     _dio = Dio(
       BaseOptions(
-        baseUrl: "http://localhost:8080/api",
+        // baseUrl: "http://localhost:8080/api", // 웹 전용 백엔드 URL
+        baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
       ),

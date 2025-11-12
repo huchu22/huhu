@@ -146,7 +146,7 @@ class _ArticleFeedPageState extends State<ArticleFeedPage> {
           const Divider(height: 1),
           Expanded(
             child: Container(
-              constraints: const BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 500),
               child: _buildBody(),
             ),
           ),

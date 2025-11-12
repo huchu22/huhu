@@ -113,6 +113,30 @@ class _ArticleItemState extends State<ArticleItem> {
         padding: const EdgeInsets.all(8),
         child: Row(
           children: [
+            // ClipRRect(
+            //   borderRadius: BorderRadius.circular(8),
+            //   child: Image.network(
+            //     widget.article.imageUrl, // 이미지 URL 또는 Asset
+            //     width: 100, // 원하는 폭
+            //     height: 100, // 원하는 높이
+            //     fit: BoxFit.cover,
+            //     errorBuilder: (context, error, stackTrace) =>
+            //         Container(color: Colors.grey, width: 100, height: 120),
+            //   ),
+            // ),
+            // const SizedBox(width: 8), // 이미지와 텍스트 간 간격
+
+            // 테스트 이미지
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.asset(
+                '../assets/images/image_ready.png', // 여기서 파일 경로 지정
+                width: 120,
+                height: 100,
+                fit: BoxFit.cover,
+              ),
+            ),
+            const SizedBox(width: 8),
             Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

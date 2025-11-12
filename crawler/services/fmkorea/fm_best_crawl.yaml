@@ -1,4 +1,5 @@
 base_url: "https://www.fmkorea.com/index.php?mid=best2&page="
+hot_base_url: "https://www.fmkorea.com/index.php?mid=hotdeal&page="
 wait_time: 2
 database:
   host: "localhost"

@@ -82,6 +82,7 @@ class _ArticleItemState extends State<ArticleItem> {
           builder: (_) => ArticleWebviewPage(
             url: widget.article.siteUrl,
             title: widget.article.title,
+            siteName: widget.article.siteName,
           ),
         ),
       );
@@ -166,9 +167,9 @@ class _ArticleItemState extends State<ArticleItem> {
     const siteMap = {
       "fmkorea": "에펨코리아",
       "dcinside": "디시인사이드",
-      "naver": "네이버",
       "ruliweb": "루리웹",
       "theqoo": "더쿠",
+      "hot_deal": "핫딜",
     };
     return siteMap[code] ?? code;
   }

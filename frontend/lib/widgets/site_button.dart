@@ -17,6 +17,7 @@ class SiteFilterButtons extends StatelessWidget {
       {"code": "dcinside", "name": "디시인사이드"},
       {"code": "ruliweb", "name": "루리웹"},
       {"code": "theqoo", "name": "더쿠"},
+      {"code": "hot_deal", "name": "핫딜"},
     ];
 
     return SingleChildScrollView(

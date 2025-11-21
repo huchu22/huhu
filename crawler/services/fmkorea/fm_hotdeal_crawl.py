@@ -104,7 +104,7 @@ class FmkoreaHotDeal(Pyselenium):
                 insert_query = f'''
                         INSERT INTO {self.table_name}
                         (article_id, title,  creation_date, article_url, site_name, img_url, collected_date)
-                        VALUES (%s, %s, %s, %s, %s, %s)
+                        VALUES (%s, %s, %s, %s, %s, %s, %s)
                         ON CONFLICT (article_id, site_name) DO NOTHING;
                     '''
                 # 한번에 많은 양의 데이터 삽입

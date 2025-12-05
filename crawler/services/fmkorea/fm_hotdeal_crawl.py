@@ -50,7 +50,7 @@ class FmkoreaHotDeal(Pyselenium):
         articles_list = []
         self.repeat_article = 0
         # DB에 있는 게시물들의 article_id 불러오기
-        # repeat_article = self.load_db_articles()
+        repeat_article = self.load_db_articles()
 
         list_e = self.driver.find_element(By.CSS_SELECTOR, "div.fm_best_widget._bd_pc")
         content_e = list_e.find_elements(By.CSS_SELECTOR, "li")
@@ -76,16 +76,15 @@ class FmkoreaHotDeal(Pyselenium):
 
             # 시간 추출
             time_e = e.find_element(By.CSS_SELECTOR, "span.regdate").text.strip()
-            time_t = self.parse_relative_time(time_e)
-            create_ts = time_t.strftime("%Y-%m-%d %H:%M")
+            create_ts = self.parse_time(time_e)
 
             # 고유 번호 추출
             match = re.search(r"/(\d+)$", url)
             article_id = self.site_name + "_" + match.group(1)
 
-            # if article_id in repeat_article:
-            #     self.repeat_article += 1
-            #     continue
+            if article_id in repeat_article:
+                self.repeat_article += 1
+                continue
 
             # 리스트 추가
             articles_list.append({
@@ -129,42 +128,31 @@ class FmkoreaHotDeal(Pyselenium):
         return existing_ids
     ###############################################################################################
     @staticmethod
-    def parse_relative_time(text: str) -> datetime:
-
-        # '7 시간 전', '3일 전', '5분 전' 등을 시간으로 변경
-
-        text = text.strip()
+    def parse_time(text):
         now = datetime.now()
 
-        match = re.match(r"(\d+)\s*(초|분|시간|일|주|개월|년) 전", text)
-        if not match:
-            return datetime.now()
+        # 1) HH:MM 형식인지 확인
+        if ":" in text:
+            # HH:MM → time object
+            post_time = datetime.strptime(text, "%H:%M").time()
 
-        num, unit = match.groups()
-        num = int(num)
+            # 날짜 붙여서 datetime 만들기
+            post_dt = datetime.combine(now.date(), post_time)
 
-        if unit == "초":
-            delta = timedelta(seconds=num)
-        elif unit == "분":
-            delta = timedelta(minutes=num)
-        elif unit == "시간":
-            delta = timedelta(hours=num)
-        elif unit == "일":
-            delta = timedelta(days=num)
-        elif unit == "주":
-            delta = timedelta(weeks=num)
-        elif unit == "개월":
-            delta = timedelta(days=num * 30)
-        elif unit == "년":
-            delta = timedelta(days=num * 365)
+            # 2) 만약 게시 시간(post_dt)이 현재 시각보다 미래라면 → 전날 게시물
+            if post_dt > now:
+                post_dt = post_dt - timedelta(days=1)
+
+            return post_dt.strftime("%Y-%m-%d %H:%M")
+
+        # 3) YYYY.MM.DD 형식 처리
         else:
-            delta = timedelta(0)
-
-        return now - delta
+            post_dt = datetime.strptime(text, "%Y.%m.%d")
+            return post_dt.strftime("%Y-%m-%d 00:00")  # 시간 정보 없으므로 00:00 지정
     ###############################################################################################
     def start(self):
         try:
-            for i in range(1, 5):
+            for i in range(1, 11):
                 url = f"{self.base_url}{i}"
                 # self.is_done = True
                 self.driver.get(url)
